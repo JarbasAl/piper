@@ -50,6 +50,9 @@ def main():
     config_path = args.dataset_dir / "config.json"
     dataset_path = args.dataset_dir / "dataset.jsonl"
 
+    print(f"INFO - config_path: '{config_path}'")
+    print(f"INFO - dataset_path: '{dataset_path}'")
+    
     with open(config_path, "r", encoding="utf-8") as config_file:
         # See preprocess.py for format
         config = json.load(config_file)
@@ -60,7 +63,7 @@ def main():
     trainer = Trainer.from_argparse_args(args)
     if args.checkpoint_epochs is not None:
         trainer.callbacks = [ModelCheckpoint(every_n_epochs=args.checkpoint_epochs)]
-        _LOGGER.debug(
+        _LOGGER.info(
             "Checkpoints will be saved every %s epoch(s)", args.checkpoint_epochs
         )
 
@@ -81,6 +84,7 @@ def main():
         dict_args["upsample_initial_channel"] = 512
         dict_args["upsample_kernel_sizes"] = (16, 16, 4, 4)
 
+    print(f"VitsModel params: num_symbols={num_symbols} num_speakers={num_speakers} sample_rate={sample_rate}")
     model = VitsModel(
         num_symbols=num_symbols,
         num_speakers=num_speakers,
@@ -95,7 +99,7 @@ def main():
         ), "--resume_from_single_speaker_checkpoint is only for multi-speaker models. Use --resume_from_checkpoint for single-speaker models."
 
         # Load single-speaker checkpoint
-        _LOGGER.debug(
+        _LOGGER.info(
             "Resuming from single-speaker checkpoint: %s",
             args.resume_from_single_speaker_checkpoint,
         )
@@ -120,7 +124,7 @@ def main():
         _LOGGER.info(
             "Successfully converted single-speaker checkpoint to multi-speaker"
         )
-
+    print("training started!!")
     trainer.fit(model)
 
 
